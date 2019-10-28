@@ -1,8 +1,8 @@
 
 
 # svg-captcha
-> 在php中生成svg格式的验证码
-> thinkphp6 svg-captcha
+> 在php中生成svg格式的验证码  
+> thinkphp6 svg-captcha  
 > 还没有优化字形这块, 不知道把字形数据缓存下来能不能解决大文件字体处理慢的问题
 
 ## 安装
