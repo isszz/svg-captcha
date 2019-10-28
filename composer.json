@@ -16,7 +16,7 @@
             "src/helper.php"
         ],
         "psr-4": {
-            "isszz\\": "src"
+            "isszz\\captcha\\": "src"
         }
     },
     "config": {
