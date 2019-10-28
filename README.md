@@ -43,6 +43,14 @@ return [
 控制器内使用🌰
 
 ```php
+<?php
+declare (strict_types = 1);
+
+namespace app\index\controller;
+
+use think\Response;
+use think\exception\HttpResponseException;
+
 class Captcha
 {
     /**
@@ -95,6 +103,7 @@ class Captcha
         ]);
     }
 }
+
 ```
 
 ## 注册进tp验证工具
