@@ -108,5 +108,5 @@ Validate::maker(function ($validate) {
 
 ## 本组件基于如下开源库
 
-. https://github.com/PhenX/php-font-lib
-. https://github.com/lichaozhy/svg-captcha
+- php字体库: [PhenX/php-font-lib](https://github.com/PhenX/php-font-lib)
+- svg-captcha nodejs版: [lichaozhy/svg-captcha](https://github.com/lichaozhy/svg-captcha)
