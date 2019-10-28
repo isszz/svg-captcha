@@ -70,16 +70,12 @@ class Captcha
     */
     public function svg($width, $height, size, $limit)
     {   
-        $config = condig('svgcaptcha');
-
-        $config = array_merge($config, [
+        $response = Response::create(svg_captcha([
             'width' => $width,
             'height' => $height,
             'size' => $limit,
             'fontSize' => $size,
-        ]);
-
-        $response = Response::create(svg_captcha($config))->contentType('image/svg+xml');
+        ]))->contentType('image/svg+xml');
 
         throw new HttpResponseException($response);
     }
