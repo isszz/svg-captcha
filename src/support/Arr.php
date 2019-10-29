@@ -1,11 +1,12 @@
 <?php
 declare (strict_types = 1);
 
-namespace isszz\captcha;
+namespace isszz\captcha\support;
 
 use ArrayAccess;
 
-class Arr {
+class Arr
+{
 
     /**
      * Determine whether the given value is array accessible.
@@ -13,7 +14,7 @@ class Arr {
      * @param  mixed  $value
      * @return bool
      */
-    public static function accessible($value)
+    public static function accessible($value): bool
     {
         return is_array($value) || $value instanceof ArrayAccess;
     }
@@ -22,11 +23,11 @@ class Arr {
      * Add an element to an array using "dot" notation if it doesn't exist.
      *
      * @param  array   $array
-     * @param  string  $key
+     * @param  mixed  $key
      * @param  mixed   $value
      * @return array
      */
-    public static function add($array, $key, $value)
+    public static function add(array $array, $key, $value): array
     {
         if (is_null(static::get($array, $key))) {
             static::set($array, $key, $value);
@@ -39,11 +40,11 @@ class Arr {
      * Get an item from an array using "dot" notation.
      *
      * @param  \ArrayAccess|array   $array
-     * @param  string  $key
+     * @param  mixed  $key
      * @param  mixed   $default
      * @return mixed
      */
-    public static function get($array, $key, $default = null)
+    public static function get(array $array, $key, $default = null)
     {
         if (is_null($key)) {
             return $array;
@@ -69,10 +70,10 @@ class Arr {
      * Check if an item exists in an array using "dot" notation.
      *
      * @param  array   $array
-     * @param  string  $key
+     * @param  mixed  $key
      * @return bool
      */
-    public static function has($array, $key)
+    public static function has(array $array, $key): bool
     {
         if (empty($array) || is_null($key)) {
             return false;
@@ -99,11 +100,11 @@ class Arr {
      * If no key is given to the method, the entire array will be replaced.
      *
      * @param  array   $array
-     * @param  string  $key
+     * @param  mixed  $key
      * @param  mixed   $value
      * @return array
      */
-    public static function set(&$array, $key, $value)
+    public static function set(array &$array, $key, $value): array
     {
         if (is_null($key)) {
             return $array = $value;

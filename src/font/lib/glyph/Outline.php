@@ -84,7 +84,7 @@ class Outline extends BinaryStream
 			return;
 		}
 
-		$this->raw = $font->read($this->size);
+		// $this->raw = $font->read($this->size);
 	}
 
 	public function parseData()

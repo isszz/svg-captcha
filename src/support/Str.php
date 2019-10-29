@@ -1,7 +1,7 @@
 <?php
 declare (strict_types = 1);
 
-namespace isszz\captcha;
+namespace isszz\captcha\support;
 
 class Str
 {

@@ -29,7 +29,6 @@ class Glyf extends Table
 		$real_loca = array_slice($loca, 0, -1); // Not the last dummy loca entry
 
 		$data = [];
-
 		foreach ($real_loca as $gid => $location) {
 			$_offset    = $offset + $loca[$gid];
 			$_size      = $loca[$gid + 1] - $loca[$gid];

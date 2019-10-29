@@ -41,15 +41,15 @@ class OutlineSimple extends Outline
 			return;
 		}
 
-		$endPtsOfContours = $font->r(array(self::uint16, $noc));
+		$endPtsOfContours = $font->r([self::uint16, $noc]);
 
 		$instructionLength  = $font->readUInt16();
-		$this->instructions = $font->r(array(self::uint8, $instructionLength));
+		$this->instructions = $font->r([self::uint8, $instructionLength]);
 
 		$count = $endPtsOfContours[$noc - 1] + 1;
 
 		// Flags
-		$flags = array();
+		$flags = [];
 		for ($index = 0; $index < $count; $index++) {
 			$flags[$index] = $font->readUInt8();
 
@@ -64,7 +64,7 @@ class OutlineSimple extends Outline
 			}
 		}
 
-		$points = array();
+		$points = [];
 		foreach ($flags as $i => $flag) {
 			$points[$i]["onCurve"]      = $flag & self::ON_CURVE;
 			$points[$i]["endOfContour"] = in_array($i, $endPtsOfContours);

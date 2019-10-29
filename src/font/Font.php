@@ -19,7 +19,7 @@ class Font
 			throw new CaptchaException('Font file name cannot be empty.');
 		}
 
-		if($file = self::getFontFile($fontName) and !file_exists($file)) {
+		if($file = self::getFontPath($fontName) and !file_exists($file)) {
 			throw new CaptchaException('Font not found in: ' . $file);
 		}
 
@@ -64,7 +64,7 @@ class Font
      * @param  string  $name
      * @return string
      */
-    public static function getFontFile(string $name): string
+    public static function getFontPath(string $name): string
     {
         return app()->getRootPath() . 'config' . DIRECTORY_SEPARATOR . 'font' . DIRECTORY_SEPARATOR . $name;
     }

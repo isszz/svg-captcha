@@ -5,6 +5,7 @@ namespace isszz\captcha;
 
 use think\Session;
 use isszz\captcha\font\Font;
+use isszz\captcha\support\Str;
 
 /**
  * SVG 验证码, 中文验证码体积大于5MB的不建议使用
@@ -231,7 +232,7 @@ class Captcha
             $config['x'] = $spacing * ($i + 1);
             $config['y'] = $height / 2;
             
-            $charPath = Ch2Path::make($text[$i], $config);
+            $charPath = $this->ch2path->get($text[$i], $config);
 
             $color = empty($config['color']) ? $this->random->greyColor($min, $max) : $this->random->color();
             $out[] = '<path fill="' . $color . '" d="' . $charPath . '"/>';
@@ -248,7 +249,8 @@ class Captcha
      */
     public function getConfig(array $config = []): array
     {
-        return array_merge($this->config, config('svgcaptcha'), $config);
+        //, config('svgcaptcha')
+        return array_merge($this->config, $config);
     }
 
     /**
@@ -258,15 +260,8 @@ class Captcha
      */
     public function initFont($fontName = null)
     {
-        if(empty($fontName)) {
-            throw new CaptchaException('字体文件名不能为空');
-        }
-
-        $this->random = new Random;
-        $this->ch2path = new Ch2Path;
-
-        Ch2Path::$font = Font::load($fontName);
-        Ch2Path::$font->parse();
+        $this->random = $this->random ?? new Random;
+        $this->ch2path = $this->ch2path ?? new Ch2Path($fontName);
     }
 
     /**
@@ -276,3 +271,8 @@ class Captcha
         return $this->svg ?: '';
     }
 }
+
+/*
+$font = Font::load('Comismsh.ttf');
+$font->parse();
+*/

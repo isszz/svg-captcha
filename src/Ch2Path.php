@@ -5,13 +5,28 @@ namespace isszz\captcha;
 
 use isszz\captcha\font\Font;
 use isszz\captcha\font\Glyph;
+use isszz\captcha\support\Str;
+use isszz\captcha\support\Arr;
 
 class Ch2Path
 {
-    public static $font;
-    public static $glyph;
-    public static $glyphs = [];
-    public static $glyphMaps = [];
+    public $font;
+    public $glyph;
+    public $glyphs = [];
+    public $glyphMaps = [];
+
+    public $ascent;
+    public $descent;
+    public $unitsPerEm;
+
+    public function __construct($fontName)
+    {
+        if(empty($fontName)) {
+            throw new CaptchaException('字体文件名不能为空');
+        }
+
+        $this->getGlyph($fontName);
+    }
 
     /**
      * 生成文字svg path
@@ -20,42 +35,28 @@ class Ch2Path
      * @param  array  $opts
      * @return object
      */
-    public static function make($text, $opts)
+    public function get($text, $opts)
     {
-        if(empty(self::$font)) {
+        if(empty($this->font)) {
             throw new CaptchaException('Please load the font first.');
         }
 
-        if(empty(self::$glyphMaps)) {
-            self::$glyphMaps = self::$font->getUnicodeCharMap();
-        }
-
-        if(empty(self::$glyphs)) {
-            self::$glyphs = self::$font->getData('glyf');
-        }
-
-        $head = self::$font->getData('head');
-        $hhea = self::$font->getData('hhea');
+        $this->glyph = new Glyph($this->unitsPerEm);
 
         $fontSize = $opts['fontSize'];
-        $fontScale = bcdiv("{$fontSize}", "{$head['unitsPerEm']}", 18);
+        $fontScale = bcdiv("{$fontSize}", "{$this->unitsPerEm}", 18);
 
-        $ascender = $hhea['ascent'];
-        $descender = $hhea['descent'];
+        $glyphWidth = $this->charToGlyphPath($text);
 
-        self::$glyph = new Glyph($head['unitsPerEm']);
-
-        $glyph = self::charToGlyphPath($text);
-
-        $width = bcmul("{$glyph->width}",  "{$fontScale}", 13);
+        $width = bcmul("{$glyphWidth}",  "{$fontScale}", 13);
         $left = bcsub("{$opts['x']}", bcdiv("{$width}", '2', 13), 13);
-        $height = bcmul(bcadd("{$ascender}", "{$descender}"), "{$fontScale}", 13);
+        $height = bcmul(bcadd("{$this->ascender}", "{$this->descender}"), "{$fontScale}", 13);
         $top = bcadd("{$opts['y']}", bcdiv("{$height}", "2", 14), 14);
 
-        $path = self::$glyph->getPath($left, $top, $fontSize);
+        $path = $this->glyph->getPath($left, $top, $fontSize);
 
         foreach($path->commands as $key => $cmd) {
-            $path->commands[$key] = self::rndPathCmd($cmd);
+            $path->commands[$key] = $this->rndPathCmd($cmd);
         }
 
         return $path->PathData();
@@ -67,22 +68,27 @@ class Ch2Path
      * @param  string  $text
      * @return object
      */
-    public static function charToGlyphPath($text)
+    public function charToGlyphPath($text)
     {
-        $glyphIndex = self::charToGlyphIndex($text);
+        $glyphIndex = $this->charToGlyphIndex($text);
 
-        $glyph = Arr::get(self::$glyphs, $glyphIndex);
+        $glyph = Arr::get($this->glyphs, $glyphIndex);
+
+        if(empty($glyph)) {
+            throw new CaptchaException('Glyph  does not exist.');
+        }
 
         $glyph->parseData();
 
-        $glyph->width  = (abs($glyph->xMin) + $glyph->xMax);
-        $glyph->height  = (abs($glyph->yMin) + $glyph->yMax);
+        $glyphWidth  = (abs($glyph->xMin) + $glyph->xMax);
+        // $glyph->height  = (abs($glyph->yMin) + $glyph->yMax);
 
         // build path
-        self::$glyph->buildPath($glyph->points);
+        $this->glyph->buildPath($glyph->points);
 
-        return $glyph;
-        // return self::$glyph->buildPath($glyph->points);
+        return $glyphWidth;
+        // return $glyph;
+        // return $this->glyph->buildPath($glyph->points);
     }
 
     /**
@@ -91,12 +97,12 @@ class Ch2Path
      * @param  string  $text
      * @return mixed
      */
-    public static function charToGlyphIndex($text) {
+    public function charToGlyphIndex($text) {
         
         $code = Str::unicode($text);
 
-	    if (self::$glyphMaps) {
-            foreach(self::$glyphMaps as $unicode => $glyphIndex) {
+	    if ($this->glyphMaps) {
+            foreach($this->glyphMaps as $unicode => $glyphIndex) {
                 if($unicode == $code) {
                     return $glyphIndex;
                 }
@@ -105,7 +111,33 @@ class Ch2Path
 	    return null;
 	}
 
-    public static function rndPathCmd($cmd)
+    /**
+     * 获取需要的字形数据
+     * 
+     * @param  string  $fontName
+     */
+    public function getGlyph($fontName)
+    {
+        $this->font = $this->font ?? Font::load($fontName);
+        $this->font->parse();
+
+        $this->glyphMaps = $this->font->getUnicodeCharMap();
+
+        $this->glyphs = $this->font->getData('glyf');
+
+        $head = $this->font->getData('head');
+        $hhea = $this->font->getData('hhea');
+
+        $this->ascender = $hhea['ascent'];
+        $this->descender = $hhea['descent'];
+        $this->unitsPerEm = $head['unitsPerEm'];
+
+        // $this->unitsPerEm = Arr::get($this->font->getData('head'), 'unitsPerEm');
+
+        unset($head, $hhea);
+    }
+
+    public function rndPathCmd($cmd)
     {
         $r = (Random::random() * 0.8) - 0.1;
     
@@ -126,7 +158,6 @@ class Ch2Path
                 // Close path cmd
                 break;
         }
-    
         return $cmd;
     }
 }

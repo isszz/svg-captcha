@@ -230,10 +230,10 @@ class OutlineComposite extends Outline
 			$_glyph = $glyphs[$component->glyphIndex];
 
 			if ($_glyph !== $this) {
-				$contours[] = array(
+				$contours[] = [
 					"contours"  => $_glyph->getSVGContours(),
 					"transform" => $component->getMatrix(),
-				);
+				];
 			}
 		}
 
