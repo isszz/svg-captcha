@@ -53,7 +53,7 @@ class Ch2Path
         $height = bcmul(bcadd("{$this->ascender}", "{$this->descender}"), "{$fontScale}", 13);
         $top = bcadd("{$opts['y']}", bcdiv("{$height}", "2", 14), 14);
 
-        $path = $this->glyph->getPath($left, $top, $fontSize);
+        $path = $this->glyph->getPath($left, $top - 4, $fontSize);
 
         foreach($path->commands as $key => $cmd) {
             $path->commands[$key] = $this->rndPathCmd($cmd);
