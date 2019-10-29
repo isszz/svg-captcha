@@ -6,6 +6,7 @@ namespace isszz\captcha;
 use think\Session;
 use isszz\captcha\font\Font;
 use isszz\captcha\support\Str;
+use isszz\captcha\support\encrypter\Encrypter;
 
 /**
  * SVG 验证码, 中文验证码体积大于5MB的不建议使用
@@ -30,6 +31,7 @@ class Captcha
         'mathMax' => 9, // 用于计算的最大值
         // Comismsh.ttf, yahei.ttf, yaya.ttf
         'fontName' => 'Comismsh.ttf', // 用于验证码的字体, 建议字体文件不超过3MB
+        'salt' => '^%$YU$%%^U#$5', // 用于加密验证码的盐
     ];
 
     private $session = null;
@@ -44,6 +46,7 @@ class Captcha
     public function __construct()
     {
         $this->session = app('session');
+        $this->encrypter = new Encrypter(config('svgcaptcha.salt'));
 
         return $this;
     }
@@ -102,11 +105,10 @@ class Captcha
      */
     public function setHash(string $text): string
     {
-        $hash = password_hash($text, PASSWORD_BCRYPT, ['cost' => 10]);
+        $hash = $this->encrypter->encrypt($text);
+        // $hash = password_hash($text, PASSWORD_BCRYPT, ['cost' => 10]);
 
-        $this->session->set('captcha', [
-            'key' => $hash,
-        ]);
+        $this->session->set('svgcaptcha', $hash);
 
         $this->text = $text;
         $this->hash = $hash;
@@ -126,12 +128,17 @@ class Captcha
             return false;
         }
 
-        $key = $this->session->get('captcha.key');
+        $hash = $this->session->get('svgcaptcha');
+
+        $text = is_null($hash) ? null : $this->encrypter->decrypt($hash);
+        $res = $code === $text;
+
+        /*
         $code = mb_strtolower($code, 'UTF-8');
         $res = password_verify($code, $key);
-
+        */
         if ($res) {
-            $this->session->delete('captcha');
+            $this->session->delete('svgcaptcha');
         }
 
         return $res;
