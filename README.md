@@ -102,6 +102,8 @@ class Captcha
 
     /**
      * 根据传入参数组装配置
+     * 
+     * /captcha/svg//w/200/h/60/s/72/l/5
     */
     public function BuildParam($params = [])
     {
@@ -114,11 +116,11 @@ class Captcha
         // 模式，1=加法 2=减法， 或者随机两种
         if(!empty($params['m'])) {
             if($params['m'] == 1) {
-                $config = ['math' => '+'];
+                $config['math'] = '+';
             } elseif($params['m'] == 2) {
-                $config = ['math' => '-'];
+                $config['math'] =  '-';
             } else {
-                $config = ['math' => 'rand'];
+                $config['math'] = 'rand';
             }
         }
 
