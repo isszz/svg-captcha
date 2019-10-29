@@ -71,7 +71,7 @@ class Ch2Path
     {
         $glyphIndex = self::charToGlyphIndex($text);
 
-        $glyph = array_get(self::$glyphs, $glyphIndex);
+        $glyph = Arr::get(self::$glyphs, $glyphIndex);
 
         $glyph->parseData();
 
