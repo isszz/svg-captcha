@@ -250,7 +250,7 @@ class Captcha
     public function getConfig(array $config = []): array
     {
         //, config('svgcaptcha')
-        return array_merge($this->config, $config);
+        return array_merge($this->config, config('svgcaptcha'), $config);
     }
 
     /**
