@@ -8,7 +8,7 @@ return [
     'noise' => 5, // 干扰线条的数量
     'inverse' => false, // 反转颜色
     'color' => true, // 文字是否随机色
-    'background' => '', // 验证码背景色
+    'background' => '#fefefe', // 验证码背景色
     'size' => 4, // 验证码字数
     'ignoreChars' => '', // 验证码字符中排除
     'fontSize' => 52, // 字体大小
