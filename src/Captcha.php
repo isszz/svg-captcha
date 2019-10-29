@@ -271,8 +271,3 @@ class Captcha
         return $this->svg ?: '';
     }
 }
-
-/*
-$font = Font::load('Comismsh.ttf');
-$font->parse();
-*/

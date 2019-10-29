@@ -75,7 +75,7 @@ class Ch2Path
         $glyph = Arr::get($this->glyphs, $glyphIndex);
 
         if(empty($glyph)) {
-            throw new CaptchaException('Glyph  does not exist.');
+            throw new CaptchaException('Glyph does not exist.');
         }
 
         $glyph->parseData();
@@ -133,7 +133,6 @@ class Ch2Path
         $this->unitsPerEm = $head['unitsPerEm'];
 
         // $this->unitsPerEm = Arr::get($this->font->getData('head'), 'unitsPerEm');
-
         unset($head, $hhea);
     }
 

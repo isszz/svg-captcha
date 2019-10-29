@@ -3,6 +3,8 @@ declare (strict_types = 1);
 
 namespace isszz\captcha;
 
+use isszz\captcha\support\Str;
+
 class Random
 {
     /**
