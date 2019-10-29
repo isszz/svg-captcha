@@ -35,6 +35,7 @@ return [
     'mathMin' => 1, // 用于计算的最小值
     'mathMax' => 9, // 用于计算的最大值
     'fontName' => 'Comismsh.ttf', // 用于验证码的字体, 建议字体文件不超过3MB
+    'salt' => '^%$YU$%%^U#$5', // 用于加密验证码的盐
 ];
 ```
 
@@ -49,6 +50,7 @@ declare (strict_types = 1);
 namespace app\index\controller;
 
 use think\Response;
+use think\Request;
 use think\exception\HttpResponseException;
 
 class Captcha
@@ -56,11 +58,13 @@ class Captcha
     /**
      * 获取验证码, 用于api
     */
-    public function index()
+    public function index(Request $request)
     {
+        $config = $this->BuildParam($request->param());
+        
         return json([
             'code' => 0,
-            'data' => svg_captcha(),
+            'data' => svg_captcha($config),
             'msg' => 'success',
         ]);
     }
@@ -68,14 +72,11 @@ class Captcha
     /**
      * 直接显示svg验证码
     */
-    public function svg($width, $height, size, $limit)
+    public function svg(Request $request)
     {   
-        $response = Response::create(svg_captcha([
-            'width' => $width,
-            'height' => $height,
-            'size' => $limit,
-            'fontSize' => $size,
-        ]))->contentType('image/svg+xml');
+        $config = $this->BuildParam($request->param());
+
+        $response = Response::create(svg_captcha($config))->contentType('image/svg+xml');
 
         throw new HttpResponseException($response);
     }
@@ -97,6 +98,59 @@ class Captcha
             'data' => null,
             'msg' => 'error',
         ]);
+    }
+
+    /**
+     * 根据传入参数组装配置
+    */
+    public function BuildParam($params = [])
+    {
+        $config = [];
+
+        if(empty($params)) {
+            return [];
+        }
+
+        // 模式，1=加法 2=减法， 或者随机两种
+        if(!empty($params['m'])) {
+            if($params['m'] == 1) {
+                $config = ['math' => '+'];
+            } elseif($params['m'] == 2) {
+                $config = ['math' => '-'];
+            } else {
+                $config = ['math' => 'rand'];
+            }
+        }
+
+        if(!empty($params['w'])) {
+            $config['width'] = $params['w'];
+        }
+
+        if(!empty($params['h'])) {
+            $config['height'] = $params['h'];
+        }
+
+        // 文字大小
+        if(!empty($params['s'])) {
+            $config['fontSize'] = $params['s'];
+        }
+
+        // 显示文字数量, 非算数模式有效
+        if(!empty($params['l'])) {
+            $config['size'] = $params['l'];
+        }
+
+        // 干扰线条数量
+        if(!empty($params['n'])) {
+            $config['noise'] = $params['n'];
+        }
+
+        // 背景色, #fefefe
+        if(!empty($params['b'])) {
+            $config['background'] = $params['b'];
+        }
+
+        return $config;
     }
 }
 

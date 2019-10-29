@@ -29,7 +29,7 @@ class Captcha
         'math' => '', // 计算类型, 如果设置不是+或-则随机两种
         'mathMin' => 1, // 用于计算的最小值
         'mathMax' => 9, // 用于计算的最大值
-        // Comismsh.ttf, yahei.ttf, yaya.ttf
+        // Comismsh.ttf, yaya.ttf, yahei.ttf
         'fontName' => 'Comismsh.ttf', // 用于验证码的字体, 建议字体文件不超过3MB
         'salt' => '^%$YU$%%^U#$5', // 用于加密验证码的盐
     ];
@@ -89,7 +89,6 @@ class Captcha
         $this->initFont($config['fontName']);
 
         list($text, $equation) = $this->random->mathExpr($config['mathMin'], $config['mathMax'], $config['math']);
-        
         $this->svg = $this->generate($equation, $config);
 
         $this->setHash($text);
@@ -183,8 +182,11 @@ class Captcha
      * @param array $config
      * @return array
      */
-    public function getLineNoise (int $width, int $height, array $config  = []): array
+    public function getLineNoise ($width, $height, array $config  = []): array
     {
+        $width = (int) $width;
+        $height = (int) $height;
+
         $min = isset($config['inverse']) ? 7 : 1;
         $max = isset($config['inverse']) ? 15 : 9;
         $i = -1;
@@ -213,8 +215,11 @@ class Captcha
      * @param array $config
      * @return array
      */
-    public function getText(string $text, int $width, int $height, array $config): array
+    public function getText(string $text, $width, $height, array $config): array
     {
+        $width = (int) $width;
+        $height = (int) $height;
+
         $len = Str::strlen($text);
 
         $spacing = ($width - 2) / ($len + 1);
