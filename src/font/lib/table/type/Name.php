@@ -16,7 +16,7 @@ use isszz\captcha\font\lib\Font;
  *
  * @package php-font-lib
  */
-class name extends Table
+class Name extends Table
 {
 	private static $header_format = [
 		"format"       => self::uint16,
@@ -145,8 +145,8 @@ class name extends Table
 
 		$records = [];
 		for ($i = 0; $i < $data["count"]; $i++) {
-			$record      = new nameRecord();
-			$record_data = $font->unpack(nameRecord::$format);
+			$record      = new NameRecord();
+			$record_data = $font->unpack(NameRecord::$format);
 			$record->map($record_data);
 
 			$records[] = $record;
@@ -169,7 +169,7 @@ class name extends Table
 	{
 		$font = $this->getFont();
 
-		/** @var nameRecord[] $records */
+		/** @var NameRecord[] $records */
 		$records       = $this->data["records"];
 		$count_records = count($records);
 
@@ -183,7 +183,7 @@ class name extends Table
 			$record->length = mb_strlen($record->getUTF16(), "8bit");
 			$record->offset = $offset;
 			$offset += $record->length;
-			$length += $font->pack(nameRecord::$format, (array)$record);
+			$length += $font->pack(NameRecord::$format, (array)$record);
 		}
 
 		foreach ($records as $record) {
