@@ -56,11 +56,11 @@ class Kern extends Table
 						$value -= 0x10000;
 					}
 
-					$pairs[] = array(
+					$pairs[] = [
 						"left"  => $left,
 						"right" => $right,
 						"value" => $value,
-					);
+					];
 
 					$tree[$left][$right] = $value;
 				}

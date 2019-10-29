@@ -274,12 +274,12 @@ class Cmap extends Table
 			$length += $font->pack(self::$subtable_v4_format, $subtable);
 
 			$segCount = $subtable["segCount"];
-			$length += $font->w(array(self::uint16, $segCount), $subtable["endCode"]);
+			$length += $font->w([self::uint16, $segCount], $subtable["endCode"]);
 			$length += $font->writeUInt16(0); // reservedPad
-			$length += $font->w(array(self::uint16, $segCount), $subtable["startCode"]);
-			$length += $font->w(array(self::int16, $segCount), $subtable["idDelta"]);
-			$length += $font->w(array(self::uint16, $segCount), $subtable["idRangeOffset"]);
-			$length += $font->w(array(self::uint16, $segCount), array_values($subtable["glyphIndexArray"]));
+			$length += $font->w([self::uint16, $segCount], $subtable["startCode"]);
+			$length += $font->w([self::int16, $segCount], $subtable["idDelta"]);
+			$length += $font->w([self::uint16, $segCount], $subtable["idRangeOffset"]);
+			$length += $font->w([self::uint16, $segCount], array_values($subtable["glyphIndexArray"]));
 
 			$after_subtable = $font->pos();
 
