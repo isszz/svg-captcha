@@ -28,7 +28,7 @@
         },
         "think": {
             "config":{
-                "svgcaptcha": "src/config.php"
+                "svgcaptcha": "src/config/config.php"
             }
         }
     }
