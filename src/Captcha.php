@@ -135,7 +135,7 @@ class Captcha
      * @param string $text
      * @return string
      */
-    public function setHash(string $text): string
+    public function setHash(string $text)
     {
         $text = mb_strtolower($text, 'UTF-8');
         $hash = $this->encrypter->encrypt($text);
