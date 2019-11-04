@@ -18,5 +18,4 @@ return [
     'mathMax' => 9, // 用于计算的最大值
     // Comismsh.ttf, yahei.ttf, yaya.ttf
     'fontName' => 'Comismsh.ttf', // 用于验证码的字体, 建议字体文件不超过3MB
-    'salt' => '^%$YU$%%^U#$5', // 用于加密验证码的盐
 ];

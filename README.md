@@ -35,7 +35,6 @@ return [
     'mathMin' => 1, // 用于计算的最小值
     'mathMax' => 9, // 用于计算的最大值
     'fontName' => 'Comismsh.ttf', // 用于验证码的字体, 建议字体文件不超过3MB
-    'salt' => '^%$YU$%%^U#$5', // 用于加密验证码的盐
 ];
 ```
 
@@ -51,7 +50,6 @@ namespace app\index\controller;
 
 use think\Response;
 use think\Request;
-use think\exception\HttpResponseException;
 
 class Captcha
 {
@@ -76,9 +74,9 @@ class Captcha
     {   
         $config = $this->BuildParam($request->param());
 
-        $response = Response::create(svg_captcha($config))->contentType('image/svg+xml');
-
-        throw new HttpResponseException($response);
+        $content = svg_captcha($config);
+        
+        return response($content, 200, ['Content-Length' => strlen($content)])->contentType('image/svg+xml');
     }
 
     /**
