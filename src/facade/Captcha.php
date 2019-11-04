@@ -4,7 +4,7 @@ namespace isszz\captcha\facade;
 
 use think\Facade;
 
-class SvgCaptcha extends Facade
+class Captcha extends Facade
 {
     protected static function getFacadeClass()
     {

@@ -1,6 +1,6 @@
 <?php
 
-use isszz\captcha\facade\SvgCaptcha;
+use isszz\captcha\facade\Captcha;
 
 if (!function_exists('svg_captcha')) {
     /**
@@ -8,7 +8,7 @@ if (!function_exists('svg_captcha')) {
      */
     function svg_captcha($config = [])
     {
-        return (string) SvgCaptcha::create($config);
+        return (string) Captcha::create($config);
     }
 }
 
@@ -19,6 +19,6 @@ if (!function_exists('svg_captcha_check')) {
      */
     function svg_captcha_check($value)
     {
-        return SvgCaptcha::check($value);
+        return Captcha::check($value);
     }
 }
