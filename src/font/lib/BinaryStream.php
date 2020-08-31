@@ -210,7 +210,7 @@ class BinaryStream
 		// fix zz
 		$a = @unpack("nn", $this->read(2));
 
-		return $a["n"];
+		return $a ? $a["n"] : '';
 	}
 
 	public function readUInt16Many($count)
