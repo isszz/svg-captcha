@@ -133,9 +133,9 @@ class Captcha
      * 生成并写入hash的session
      *
      * @param string $text
-     * @return string
+     * @return bool
      */
-    public function setHash(string $text)
+    public function setHash(string $text): bool
     {
         $text = mb_strtolower($text, 'UTF-8');
         $hash = $this->encrypter->encrypt($text);
@@ -145,6 +145,8 @@ class Captcha
 
         $this->text = $text;
         $this->hash = $hash;
+        
+        return true;
     }
 
     /**
