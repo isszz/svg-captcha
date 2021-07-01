@@ -205,7 +205,7 @@ class Random
         // dd([$r, $g, $b]);
         $color = ($b | $g << 8 | $r << 16) | 1 << 24;
 
-        $color = dechex("{$color}");
+        $color = dechex($color);
         $color = substr($color, 1);
 
         return '#' . $color;
