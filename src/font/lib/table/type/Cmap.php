@@ -138,7 +138,7 @@ class Cmap extends Table
 							$gid = $font->readUInt16();
 
 							if ($gid != 0 && $gid != '') {
-								$gid = ($gid + $d) & 0xFFFF;
+								$gid = ((int) $gid + $d) & 0xFFFF;
 							}
 						}
 
