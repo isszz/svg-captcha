@@ -49,7 +49,7 @@ class File extends \isszz\captcha\font\lib\truetype\File
 			$data = $this->read($entry->length);
 
 			if ($entry->length < $entry->origLength) {
-				$data = gzuncompress($data);
+				$data = (string) gzuncompress($data);
 			}
 
 			// Prepare data ...
