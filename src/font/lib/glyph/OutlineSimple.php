@@ -271,7 +271,7 @@ class OutlineSimple extends Outline
 			$points = $this->points;
 		}
 
-		$length     = is_array($points) ? count($points) : 0;
+		$length     = (empty($points) ? 0 : count($points));
 		$firstIndex = 0;
 		$count      = 0;
 
