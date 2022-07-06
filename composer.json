@@ -9,6 +9,7 @@
         }
     ],
     "require": {
+        "ext-mbstring": "*",
         "topthink/framework": "^6.0.0"
     },
     "autoload": {
