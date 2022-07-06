@@ -77,7 +77,7 @@ class File extends \isszz\captcha\font\lib\truetype\File
 			return "";
 		}
 
-		$string = fread($this->f, $n);
+		$string = (string) fread($this->f, $n);
 		$chunks = str_split($string, 2);
 		$chunks = array_map("strrev", $chunks);
 
