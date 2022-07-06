@@ -103,7 +103,7 @@ class Outline extends BinaryStream
 	{
 		$font = $this->getFont();
 
-		return $font->write($this->raw, strlen($this->raw));
+		return $font->write($this->raw, mb_strlen((string) $this->raw, '8bit'));
 	}
 
 	public function getSVGContours()
