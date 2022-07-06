@@ -77,9 +77,8 @@ class File extends \isszz\captcha\font\lib\truetype\File
 			return "";
 		}
 
-		$string = (string) fread($this->f, $n);
-		$chunks = str_split($string, 2);
-		$chunks = array_map("strrev", $chunks);
+		$string = fread($this->f, $n);
+		$chunks = mb_str_split($string, 2, '8bit');
 
 		return implode("", $chunks);
 	}
