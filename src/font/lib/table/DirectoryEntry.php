@@ -36,7 +36,12 @@ class DirectoryEntry extends BinaryStream
 	public $length;
 
 	protected $origF;
-
+	
+	/**
+	* @param string $data
+	*
+	* @return int
+	*/
 	public static function computeChecksum($data)
 	{
 		$len = strlen($data);
