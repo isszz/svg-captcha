@@ -3,20 +3,24 @@ declare (strict_types = 1);
 
 namespace isszz\captcha;
 
-use think\Config;
 use think\Session;
+use think\facade\Config;
+
 use isszz\captcha\font\Font;
 use isszz\captcha\support\Str;
 use isszz\captcha\support\encrypter\Encrypter;
 
 /**
- * SVG 验证码, 中文验证码体积大于5MB的不建议使用
+ * SVG 验证码, 中文验证码体积大于3MB的不建议使用
  *
- * 2019-11-05 04:45:36
+ * 2022-08-29
  */
 class Captcha
 {
-    public $conf = [
+    /**
+     * Default config
+     */
+    protected $config = [
         'width' => 150,
         'height' => 50,
         'noise' => 5, // 干扰线条的数量
@@ -30,27 +34,56 @@ class Captcha
         'math' => '', // 计算类型, 如果设置不是+或-则随机两种
         'mathMin' => 1, // 用于计算的最小值
         'mathMax' => 9, // 用于计算的最大值
-        // Comismsh.ttf, yaya.ttf, yahei.ttf
+        'salt' => '^%$YU$%%^U#$5', // 用于加密验证码的盐
         'fontName' => 'Comismsh.ttf', // 用于验证码的字体, 建议字体文件不超过3MB
     ];
 
-    private $salt = '^%$YU$%%^U#$5'; // 用于加密验证码的盐
+    /**
+     * think session
+     */
+    protected ?object $session;
 
-    private $session = null;
-    private $config = null;
+    /**
+     * Encrypter object
+     */
+    protected ?object $encrypter = null;
 
-    protected $random;
-    protected $ch2path;
+    /**
+     * Font random
+     */
+    protected ?object $random;
 
-    public $svg;
-    public $text;
-    public $hash;
+    /**
+     * Get font path
+     */
+    protected ?object $ch2path;
 
-    public function __construct(Config $config, Session $session)
+
+    /**
+     * To svg string
+     */
+    private ?string $text;
+
+    /**
+     * Encode hash
+     */
+    private ?string $hash;
+
+    /**
+     * To svg string
+     */
+    public ?string $svg;
+
+    /**
+     * 初始化
+     *
+     * @param ?object $config
+     * @param ?object $session
+     * @return self
+     */
+    public function __construct(Session $session)
     {
-        $this->config = $config;
         $this->session = $session;
-        $this->encrypter = new Encrypter($this->salt);
 
         return $this;
     }
@@ -59,21 +92,21 @@ class Captcha
      * 创建文字验证码
      *
      * @param array $config
-     * @return object
+     * @return self
      */
-    public function create(array $config = []): Captcha
+    public function create(array $config = []): self
     {
         if(!empty($config['math'])) {
             return $this->createMath($config);
         }
 
-        $config = $this->getConfig($config);
+        $this->config = $this->config($config);
 
-        $this->initFont($config['fontName']);
+        $this->initFont($this->config['fontName']);
 
-        $text = $this->random->captchaText($config);
+        $text = $this->random->captchaText($this->config);
 
-        $this->svg = $this->generate($text, $config);
+        $this->svg = $this->generate($text);
 
         return $this;
     }
@@ -82,16 +115,16 @@ class Captcha
      * 创建计算类型验证码
      *
      * @param array $config
-     * @return object
+     * @return self
      */
-    public function createMath(array $config = []): Captcha
+    public function createMath(array $config = []): self
     {
-        $config = $this->getConfig($config);
+        $this->config = $this->config($config);
 
-        $this->initFont($config['fontName']);
+        $this->initFont($this->config['fontName']);
 
-        list($text, $equation) = $this->random->mathExpr($config['mathMin'], $config['mathMax'], $config['math']);
-        $this->svg = $this->generate($equation, $config);
+        [$text, $equation] = $this->random->mathExpr($this->config['mathMin'], $this->config['mathMax'], $this->config['math']);
+        $this->svg = $this->generate($equation);
 
         return $this;
     }
@@ -100,31 +133,30 @@ class Captcha
      * 生成验证码
      *
      * @param string $text
-     * @param array $config
      * @return string
      */
-    protected function generate(string $text, array $config = []): string
+    protected function generate(string $text): string
     {
         $text = $text ?: $this->random->captchaText();
 
         $this->setHash($text);
 
-        $width = $config['width'];
-        $height = $config['height'];
+        $width = $this->config['width'];
+        $height = $this->config['height'];
 
-        if ($config['background']) {
-            $config['color'] = true;
+        if ($this->config['background']) {
+            $this->config['color'] = true;
         }
 
-        $bgRect = empty($config['background']) ? '': '<rect width="100%" height="100%" fill="' . $config['background'] . '"/>';
+        $bgRect = empty($this->config['background']) ? '': '<rect width="100%" height="100%" fill="' . $this->config['background'] . '"/>';
 
-        $paths = array_merge($this->getLineNoise($width, $height, $config), $this->getText($text, $width, $height, $config));
+        $paths = array_merge($this->getLineNoise($width, $height), $this->getText($text, $width, $height,));
 
         shuffle($paths);
 
         $paths = implode('', $paths);
 
-        $start = '<svg xmlns="http://www.w3.org/2000/svg" width="'. $width .'" height="'. $height .'" viewBox="0,0,'. $width .','. $height .'">';
+        $start = '<svg xmlns="http://www.w3.org/2000/svg" width="'. $width .'" height="'. $height .'" viewBox="0,0,'. $width .','. $height .'" author="CFYun">';
 
         return $start . $bgRect . $paths . '</svg>';
     }
@@ -135,17 +167,17 @@ class Captcha
      * @param string $text
      * @return bool
      */
-    public function setHash(string $text): bool
+    private function setHash(string $text): bool
     {
         $text = mb_strtolower($text, 'UTF-8');
-        $hash = $this->encrypter->encrypt($text);
+        $hash = $this->encrypter()->encrypt($text);
         // $hash = password_hash($text, PASSWORD_BCRYPT, ['cost' => 10]);
 
         $this->session->set('svgcaptcha', $hash);
 
         $this->text = $text;
         $this->hash = $hash;
-        
+
         return true;
     }
 
@@ -163,7 +195,7 @@ class Captcha
 
         $hash = $this->session->get('svgcaptcha');
 
-        $text = is_null($hash) ? null : $this->encrypter->decrypt($hash);
+        $text = is_null($hash) ? null : $this->encrypter()->decrypt($hash);
         $res = $code === $text;
 
         // $code = mb_strtolower($code, 'UTF-8');
@@ -181,26 +213,25 @@ class Captcha
      *
      * @param int $width
      * @param int $height
-     * @param array $config
      * @return array
      */
-    public function getLineNoise ($width, $height, array $config  = []): array
+    private function getLineNoise ($width, $height): array
     {
         $width = (int) $width;
         $height = (int) $height;
 
-        $min = isset($config['inverse']) ? 7 : 1;
-        $max = isset($config['inverse']) ? 15 : 9;
+        $min = isset($this->config['inverse']) ? 7 : 1;
+        $max = isset($this->config['inverse']) ? 15 : 9;
         $i = -1;
 
         $noiseLines = [];
-        while (++$i < $config['noise']) {
+        while (++$i < $this->config['noise']) {
             $start = Random::randomInt(1, 21) . ' ' . Random::randomInt(1, $height - 1);
             $end = Random::randomInt($width - 21, $width - 1) . ' ' . Random::randomInt(1, $height - 1);
             $mid1 = Random::randomInt(($width / 2) - 21, ($width / 2) + 21) . ' ' . Random::randomInt(1, $height - 1);
             $mid2 = Random::randomInt(($width / 2) - 21, ($width / 2) + 21) . ' ' . Random::randomInt(1, $height - 1);
 
-            $color = $config['color'] ? $this->random->color() : $this->random->greyColor($min, $max);
+            $color = $this->config['color'] ? $this->random->color() : $this->random->greyColor($min, $max);
 
             $noiseLines[] = '<path d="M' . $start . ' C' . $mid1 . ',' . $mid2 . ',' . $end . '" stroke="' . $color . '" fill="none"/>';
         }
@@ -214,10 +245,9 @@ class Captcha
      * @param string $text
      * @param int $width
      * @param int $height
-     * @param array $config
      * @return array
      */
-    public function getText(string $text, $width, $height, array $config): array
+    private function getText(string $text, $width, $height): array
     {
         $width = (int) $width;
         $height = (int) $height;
@@ -227,7 +257,7 @@ class Captcha
         $spacing = ($width - 2) / ($len + 1);
         $min = $max = 0;
 
-        if(!empty($config['inverse'])) {
+        if(!empty($this->config['inverse'])) {
             $min = 10;
             $max = 14;
         }
@@ -243,16 +273,41 @@ class Captcha
 
         $out = [];
         while (++$i < $len) {
-            $config['x'] = $spacing * ($i + 1);
-            $config['y'] = $height / 2;
+            $this->config['x'] = $spacing * ($i + 1);
+            $this->config['y'] = $height / 2;
 
-            $charPath = $this->ch2path->get($text[$i], $config);
+            $charPath = $this->ch2path->get($text[$i], $this->config);
 
-            $color = empty($config['color']) ? $this->random->greyColor($min, $max) : $this->random->color();
+            $color = empty($this->config['color']) ? $this->random->greyColor($min, $max) : $this->random->color();
             $out[] = '<path fill="' . $color . '" d="' . $charPath . '"/>';
         }
 
         return $out;
+    }
+
+    /**
+     * 载入字体初始化相关
+     *
+     * @param string|null $fontName
+     */
+    private function initFont($fontName = null)
+    {
+        $this->random = $this->random ?? new Random;
+        $this->ch2path = $this->ch2path ?? new Ch2Path($fontName);
+    }
+
+    /**
+     * Initialize encrypter
+     *
+     * @return object
+     */
+    private function encrypter(): object
+    {
+        if(!is_null($this->encrypter)) {
+            return $this->encrypter;
+        }
+
+        return $this->encrypter = new Encrypter($this->config['salt']);
     }
 
     /**
@@ -261,20 +316,9 @@ class Captcha
      * @param array $config
      * @return array
      */
-    public function getConfig(array $config = []): array
+    public function config($config = []): array
     {
-        return array_merge($this->conf, $this->config->get('svgcaptcha'), $config);
-    }
-
-    /**
-     * 载入字体初始化相关
-     *
-     * @param string|null $fontName
-     */
-    public function initFont($fontName = null)
-    {
-        $this->random = $this->random ?? new Random;
-        $this->ch2path = $this->ch2path ?? new Ch2Path($fontName);
+        return array_merge($this->config, Config::get('svgcaptcha', []), (array) $config);
     }
 
     /**
