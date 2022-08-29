@@ -16,6 +16,6 @@ return [
     'math' => '', // 计算类型, 如果设置不是+或-则随机两种
     'mathMin' => 1, // 用于计算的最小值
     'mathMax' => 9, // 用于计算的最大值
-    // Comismsh.ttf, yahei.ttf, yaya.ttf
+    'salt' => '^%$YU$%%^U#$5', // 用于加密验证码的盐
     'fontName' => 'Comismsh.ttf', // 用于验证码的字体, 建议字体文件不超过3MB
 ];
