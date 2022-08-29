@@ -1,4 +1,4 @@
-![demo](demo.png)
+<img align="center" src="demo.png" />
 
 # svg-captcha
 > 在php中生成svg格式的验证码  
